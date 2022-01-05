@@ -25,10 +25,26 @@
     enabled: yes
   notify: yum-clean-all
 
+- name: debugging-install-confluent-kafka
+  vars:
+    v1: "'/helloansible/'"
+    v2: "'/'"
+  shell: 'yes | sudo yum -y --installroot={{v1}} --releasever={{v2}} install confluent-platform-oss-2.11'
+  become_user: vishnunimmalapudi
+  become: yes
+  poll: 60
+
 - name: Install confluent kafka
   yum:
     name: confluent-platform-oss-2.11
+    installroot: "/helloansible/"
+    releasever: "/"
+    #disablerepo: "*"
+    # enablerepo: "Confluent,Confluent.dist"
     state: present
+    skip_broken: true
+  become_user: vishnunimmalapudi
+  become: yes
 
 - name: Configure server.properties
   template:
