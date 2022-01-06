@@ -7,23 +7,24 @@
 - name: restart zookeeper service
   systemd: 
     state: restarted 
-    name: zookeeper.service
+    name: zookeeper_ansible.service
     daemon_reload: yes
 
 - name: restart kafka service
   systemd: 
     state: restarted 
-    name: kafka.service
+    name: kafka_ansible.service
     daemon_reload: yes
  
 - name: restart schema-registry service
   systemd: 
     state: restarted 
-    name: schema-registry.service
+    name: schema-registry_ansible.service
     daemon_reload: yes
 
 - name: restart kafka-rest service
   systemd: 
     state: restarted 
-    name: kafka-rest.service
+    name: kafka-rest_ansible.service
     daemon_reload: yes
+
