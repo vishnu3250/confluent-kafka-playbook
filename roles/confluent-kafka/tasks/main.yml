@@ -27,68 +27,66 @@
 
 - name: debugging-install-confluent-kafka
   vars:
-    v1: "'/helloansible/'"
+    v1: "'/home/vishnunimmalapudi/confluent.temp/'"
     v2: "'/'"
   shell: 'yes | sudo yum -y --installroot={{v1}} --releasever={{v2}} install confluent-platform-oss-2.11'
   become_user: vishnunimmalapudi
   become: yes
-  poll: 60
 
-- name: Install confluent kafka
-  yum:
-    name: confluent-platform-oss-2.11
-    installroot: "/helloansible/"
-    releasever: "/"
-    #disablerepo: "*"
-    # enablerepo: "Confluent,Confluent.dist"
-    state: present
-    skip_broken: true
-  become_user: vishnunimmalapudi
-  become: yes
+
+#- name: Install confluent kafka
+ # yum:
+  #  name: confluent-platform-oss-2.11
+   # installroot: "/helloansible/"
+#    releasever: "/"
+ #   state: present
+  #  skip_broken: true
+ # become_user: vishnunimmalapudi
+#  become: yes
 
 - name: Configure server.properties
   template:
     src: server.properties.j2
-    dest: /etc/kafka/server.properties
+    dest: /home/vishnunimmalapudi/confluent.temp/etc/kafka/server.properties
 
 - name: Configure producer.properties
   template: 
     src: producer.properties.j2
-    dest: /etc/kafka/producer.properties
+    dest: /home/vishnunimmalapudi/confluent.temp/etc/kafka/producer.properties
 
 - name: configure consumer.properties
   template:
     src: consumer.properties.j2
-    dest: /etc/kafka/consumer.properties
+    dest: /home/vishnunimmalapudi/confluent.temp/etc/kafka/consumer.properties
 
 - name: Configure schema-registry.properties
   template:
     src: schema-registry.properties.j2
-    dest: /etc/schema-registry/schema-registry.properties
+    dest: /home/vishnunimmalapudi/confluent.temp/etc/schema-registry/schema-registry.properties
 
 - name: Configure kafka-rest.properties
   template:
     src: kafka-rest.properties.j2
-    dest: /etc/kafka-rest/kafka-rest.properties
+    dest: /home/vishnunimmalapudi/confluent.temp/etc/kafka-rest/kafka-rest.properties
 
 - name: Configure zookeeper.properties
   template:
     src: zookeeper.properties.j2
-    dest: /etc/kafka/zookeeper.properties
+    dest: /home/vishnunimmalapudi/confluent.temp/etc/kafka/zookeeper.properties
 
 - name: Creates zookeeper cluster directories
   file: 
-    path: /var/lib/zookeeper 
+    path: /home/vishnunimmalapudi/confluent.temp/var/lib/zookeeper
     state: directory
 
 - name: Configure zookeeper myid
   template:
     src: myid.j2
-    dest: /var/lib/zookeeper/myid
+    dest: /home/vishnunimmalapudi/confluent.temp/var/lib/zookeeper/myid
 
 - name: Install zookeeper as service
   copy: 
-    src: zookeeper.service
+    src: zookeeper_ansible.service
     dest: /etc/systemd/system/
     owner: root 
     mode: 644
@@ -97,7 +95,7 @@
 
 - name: Install kafka as service
   copy: 
-    src: kafka.service
+    src: kafka_ansible.service
     dest: /etc/systemd/system/
     owner: root 
     mode: 644
@@ -106,7 +104,7 @@
 
 - name: Install schema-registry as service
   copy: 
-    src: schema-registry.service
+    src: schema-registry_ansible.service
     dest: /etc/systemd/system/
     owner: root 
     mode: 644
@@ -115,7 +113,7 @@
 
 - name: Install kafka-rest as service
   copy: 
-    src: kafka-rest.service
+    src: kafka-rest_ansible.service
     dest: /etc/systemd/system/
     owner: root 
     mode: 644
@@ -124,28 +122,29 @@
 
 - name: enable zookeeper service on startup
   systemd: 
-    name: zookeeper.service
+    name: zookeeper_ansible.service
     daemon_reload: yes
     enabled: yes
     masked: no
 
 - name: enable kafka service on startup
   systemd: 
-    name: kafka.service
+    name: kafka_ansible.service
     daemon_reload: yes
     enabled: yes
     masked: no
 
 - name: enable schema-registry service on startup
   systemd: 
-    name: "schema-registry.service"
+    name: "schema-registry_ansible.service"
     daemon_reload: yes
     enabled: yes
     masked: no
 
 - name: enable kafka-rest service on startup
   systemd: 
-    name: "kafka-rest.service"
+    name: "kafka-rest_ansible.service"
     daemon_reload: yes
     enabled: yes
     masked: no
+
