@@ -7,10 +7,11 @@ After=network.target
 [Service]
 Type=simple
 SuccessExitStatus=1
-ExecStart=/home/vishnunimmalapudi/confluent.temp/bin/schema-registry-start /home/vishnunimmalapudi/confluent.temp/etc/schema-registry/schema-registry.properties
-ExecStop=/home/vishnunimmalapudi/confluent.temp/bin/schema-registry-stop
+ExecStart=/home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/bin/schema-registry-start /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/schema-registry/schema-registry.properties
+ExecStop=/home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/bin/schema-registry-stop
 User=root
 Group=root
  
 [Install]
 WantedBy=default.target
+

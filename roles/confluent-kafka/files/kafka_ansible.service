@@ -7,10 +7,11 @@ After=network.target
 [Service]
 Type=simple
 SuccessExitStatus=1
-ExecStart=/home/vishnunimmalapudi/confluent.temp/bin/kafka-server-start /home/vishnunimmalapudi/confluent.temp/etc/kafka/server.properties
-ExecStop=/home/vishnunimmalapudi/confluent.temp/bin/kafka-server-stop
+ExecStart=/home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/bin/kafka-server-start /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/kafka/server.properties
+ExecStop=/home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/bin/kafka-server-stop
 User=root
 Group=root
  
 [Install]
 WantedBy=default.target
+

@@ -4,85 +4,57 @@
 
 - import_tasks: register_vars.yml
 
-- name: Add Confluent Kafka Repository (1)
-  yum_repository:
-    name: Confluent.dist
-    description: Confluent repository (dist)
-    file: confluent
-    baseurl: https://packages.confluent.io/rpm/4.0/7
-    gpgcheck: no
-    gpgkey: https://packages.confluent.io/rpm/4.0/archive.key
-    enabled: yes
 
-- name: Add Confluent Kafka Repository (2)
-  yum_repository:
-    name: Confluent
-    description: Confluent repository
-    file: confluent
-    baseurl: https://packages.confluent.io/rpm/4.0
-    gpgcheck: no
-    gpgkey: https://packages.confluent.io/rpm/4.0/archive.key
-    enabled: yes
-  notify: yum-clean-all
-
-- name: debugging-install-confluent-kafka
-  vars:
-    v1: "'/home/vishnunimmalapudi/confluent.temp/'"
-    v2: "'/'"
-  shell: 'yes | sudo yum -y --installroot={{v1}} --releasever={{v2}} install confluent-platform-oss-2.11'
-  become_user: vishnunimmalapudi
-  become: yes
+- name: download-confluent-kafka
+  shell: 'curl -O http://packages.confluent.io/archive/6.2/confluent-community-6.2.0.tar.gz'
+  args:
+    chdir: /home/vishnunimmalapudi/confluent.temp
 
 
-#- name: Install confluent kafka
- # yum:
-  #  name: confluent-platform-oss-2.11
-   # installroot: "/helloansible/"
-#    releasever: "/"
- #   state: present
-  #  skip_broken: true
- # become_user: vishnunimmalapudi
-#  become: yes
+- name: extract files from confluent.tar
+  shell: 'tar xzf confluent-community-6.2.0.tar.gz'
+  args:
+    chdir: /home/vishnunimmalapudi/confluent.temp
 
 - name: Configure server.properties
   template:
     src: server.properties.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/etc/kafka/server.properties
+    dest: /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/kafka/server.properties
 
 - name: Configure producer.properties
   template: 
     src: producer.properties.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/etc/kafka/producer.properties
+    dest: /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/kafka/producer.properties
 
 - name: configure consumer.properties
   template:
     src: consumer.properties.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/etc/kafka/consumer.properties
+    dest: /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/kafka/consumer.properties
 
 - name: Configure schema-registry.properties
   template:
     src: schema-registry.properties.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/etc/schema-registry/schema-registry.properties
+    dest: /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/schema-registry/schema-registry.properties
 
 - name: Configure kafka-rest.properties
   template:
     src: kafka-rest.properties.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/etc/kafka-rest/kafka-rest.properties
+    dest: /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/kafka-rest/kafka-rest.properties
 
 - name: Configure zookeeper.properties
   template:
     src: zookeeper.properties.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/etc/kafka/zookeeper.properties
+    dest: /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/kafka/zookeeper.properties
 
 - name: Creates zookeeper cluster directories
   file: 
-    path: /home/vishnunimmalapudi/confluent.temp/var/lib/zookeeper
+    path: /home/vishnunimmalapudi/confluent.temp/data/zoo-dataDir
     state: directory
 
 - name: Configure zookeeper myid
   template:
     src: myid.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/var/lib/zookeeper/myid
+    dest: /home/vishnunimmalapudi/confluent.temp/data/zoo-dataDir/myid
 
 - name: Install zookeeper as service
   copy: 
@@ -136,15 +108,16 @@
 
 - name: enable schema-registry service on startup
   systemd: 
-    name: "schema-registry_ansible.service"
+    name: schema-registry_ansible.service
     daemon_reload: yes
     enabled: yes
     masked: no
 
 - name: enable kafka-rest service on startup
   systemd: 
-    name: "kafka-rest_ansible.service"
+    name: kafka-rest_ansible.service
     daemon_reload: yes
     enabled: yes
     masked: no
+
 
