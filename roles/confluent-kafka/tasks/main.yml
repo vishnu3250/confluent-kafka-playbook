@@ -2,22 +2,20 @@
 
 - import_tasks: register_vars.yml
 
-- name: Create opt/app directories
+- name: create directory if they don't exist
   file:
-    path: /opt/app/confluent
+    path: "{{ item }}"
     state: directory
-  file:
-    path: /opt/app/java
-    state: directory
-  file:
-    path: /opt/app/service/zookeeper
-    state: directory
-  file:
-    path: /opt/app/confluent/data/zoo-dataDir
-    state: directory
-  file:
-    path: /tmp/kafka-10-logs
-    state: directory
+    owner: root
+    group: root
+    mode: 0775
+  loop:
+    - /opt/app/confluent
+    - /opt/app/java
+    - /opt/app/service/zookeeper
+    - /opt/app/confluent/data/zoo-dataDir
+    - /tmp/kafka-10-logs
+
 
 - name: download-confluent-kafka
   shell: 'sudo curl -O http://packages.confluent.io/archive/6.2/confluent-community-6.2.0.tar.gz'
@@ -42,9 +40,8 @@
     chdir: /opt/app/java
 
 - name: copy paste zoo props
-  copy:
-    src: /opt/app/confluent/confluent-6.2.0/etc/kafka/zookeeper.properties
-    dest: /opt/app/service/zookeeper/zookeeper.properties
+  shell: 'sudo cp /opt/app/confluent/confluent-6.2.0/etc/kafka/zookeeper.properties /opt/app/service/zookeeper/zookeeper.properties'
+
 
 
 
@@ -54,9 +51,9 @@
     dest: /opt/app/service/zookeeper/zookeeper.properties
 
 - name: Configure bashrc
-  copy:
-    src: bashrc
-    dest: ~/.bashrc
+  template:
+    src: bashrc.j2
+    dest: /home/vishnunimmalapudi/.bashrc
 
 - name: sourcing bashrc
   shell: 'source ~/.bashrc'
