@@ -4,3 +4,4 @@ zookeeper_connect_servers: "{{ groups['kafka_broker_nodes'] | map('extract', hos
 bootstrap_servers: "{{ groups['kafka_broker_nodes'] | map('extract', hostvars, ['ansible_host']) | join(':9092,') }}:9092"
 kafkastore_zookeeper_url: "{{ groups['kafka_broker_nodes'] | map('extract', hostvars, ['ansible_host']) | join(':2181,') }}:2181"
 schema_registry_urls: ""
+installation_dir_path: "/home/vishnunimmalapudi/confluent.temp"

@@ -4,9 +4,9 @@ After=multi-user.target
 
 [Service]
 User=root
-WorkingDirectory=/opt/app/confluent
-ExecStart=/opt/app/service/zookeeper/zookeeper.run.sh
-ExecStop=/opt/app/service/zookeeper/zookeeper.stop.sh
+WorkingDirectory=/home/vishnunimmalapudi/confluent.temp/confluent
+ExecStart=/home/vishnunimmalapudi/confluent.temp/service/zookeeper/zookeeper.run.sh
+ExecStop=/home/vishnunimmalapudi/confluent.temp/service/zookeeper/zookeeper.stop.sh
 SuccessExitStatus=143
 TimeoutStopSec=10
 Restart=on-failure
