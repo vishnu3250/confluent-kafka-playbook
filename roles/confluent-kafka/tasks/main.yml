@@ -1,60 +1,75 @@
 ---
-- import_tasks: java.yml
-  when: java_install
 
 - import_tasks: register_vars.yml
 
+- name: Create opt/app directories
+  file:
+    path: /opt/app/confluent
+    state: directory
+  file:
+    path: /opt/app/java
+    state: directory
+  file:
+    path: /opt/app/service/zookeeper
+    state: directory
+  file:
+    path: /opt/app/confluent/data/zoo-dataDir
+    state: directory
+  file:
+    path: /tmp/kafka-10-logs
+    state: directory
 
 - name: download-confluent-kafka
-  shell: 'curl -O http://packages.confluent.io/archive/6.2/confluent-community-6.2.0.tar.gz'
+  shell: 'sudo curl -O http://packages.confluent.io/archive/6.2/confluent-community-6.2.0.tar.gz'
   args:
-    chdir: /home/vishnunimmalapudi/confluent.temp
+    chdir: /opt/app/confluent
 
 
 - name: extract files from confluent.tar
-  shell: 'tar xzf confluent-community-6.2.0.tar.gz'
+  shell: 'sudo tar xzf confluent-community-6.2.0.tar.gz'
   args:
-    chdir: /home/vishnunimmalapudi/confluent.temp
+    chdir: /opt/app/confluent
 
-- name: Configure server.properties
-  template:
-    src: server.properties.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/kafka/server.properties
+- name: download-java
+  shell: 'sudo curl -O https://download.java.net/java/GA/jdk11/13/GPL/openjdk-11.0.1_linux-x64_bin.tar.gz'
+  args:
+    chdir: /opt/app/java
 
-- name: Configure producer.properties
-  template: 
-    src: producer.properties.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/kafka/producer.properties
 
-- name: configure consumer.properties
-  template:
-    src: consumer.properties.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/kafka/consumer.properties
+- name: extract files from java.tar
+  shell: 'sudo tar xzf openjdk-11.0.1_linux-x64_bin.tar.gz'
+  args:
+    chdir: /opt/app/java
 
-- name: Configure schema-registry.properties
-  template:
-    src: schema-registry.properties.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/schema-registry/schema-registry.properties
+- name: copy paste zoo props
+  copy:
+    src: /opt/app/confluent/confluent-6.2.0/etc/kafka/zookeeper.properties
+    dest: /opt/app/service/zookeeper/zookeeper.properties
 
-- name: Configure kafka-rest.properties
-  template:
-    src: kafka-rest.properties.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/kafka-rest/kafka-rest.properties
+
 
 - name: Configure zookeeper.properties
   template:
     src: zookeeper.properties.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/confluent-6.2.0/etc/kafka/zookeeper.properties
+    dest: /opt/app/service/zookeeper/zookeeper.properties
+
+- name: Configure bashrc
+  copy:
+    src: bashrc
+    dest: ~/.bashrc
+
+- name: sourcing bashrc
+  shell: 'source ~/.bashrc'
 
 - name: Creates zookeeper cluster directories
   file: 
-    path: /home/vishnunimmalapudi/confluent.temp/data/zoo-dataDir
+    path: /opt/app/confluent/data/zoo-dataDir
     state: directory
 
 - name: Configure zookeeper myid
   template:
     src: myid.j2
-    dest: /home/vishnunimmalapudi/confluent.temp/data/zoo-dataDir/myid
+    dest: /opt/app/confluent/data/zoo-dataDir/myid
 
 - name: Install zookeeper as service
   copy: 
@@ -65,32 +80,27 @@
   notify:
     - restart zookeeper service
 
-- name: Install kafka as service
-  copy: 
-    src: kafka_ansible.service
-    dest: /etc/systemd/system/
-    owner: root 
-    mode: 644
-  notify:
-    - restart kafka service
 
-- name: Install schema-registry as service
-  copy: 
-    src: schema-registry_ansible.service
-    dest: /etc/systemd/system/
-    owner: root 
+- name: Install zookeeper.run
+  copy:
+    src: zookeeper.run.sh
+    dest: /opt/app/service/zookeeper/
+    owner: root
     mode: 644
   notify:
-    - restart schema-registry service
+    - restart zookeeper service
 
-- name: Install kafka-rest as service
-  copy: 
-    src: kafka-rest_ansible.service
-    dest: /etc/systemd/system/
-    owner: root 
+
+- name: Install zookeeper.stop
+  copy:
+    src: zookeeper.stop.sh
+    dest: /opt/app/service/zookeeper/
+    owner: root
     mode: 644
   notify:
-    - restart kafka-rest service
+    - restart zookeeper service
+
+
 
 - name: enable zookeeper service on startup
   systemd: 
@@ -98,26 +108,3 @@
     daemon_reload: yes
     enabled: yes
     masked: no
-
-- name: enable kafka service on startup
-  systemd: 
-    name: kafka_ansible.service
-    daemon_reload: yes
-    enabled: yes
-    masked: no
-
-- name: enable schema-registry service on startup
-  systemd: 
-    name: schema-registry_ansible.service
-    daemon_reload: yes
-    enabled: yes
-    masked: no
-
-- name: enable kafka-rest service on startup
-  systemd: 
-    name: kafka-rest_ansible.service
-    daemon_reload: yes
-    enabled: yes
-    masked: no
-
-
