@@ -65,8 +65,6 @@
       alias services.status='systemctl list-units --type service --all | grep label-app'
       alias service.log='sudo journalctl -f -n 500 -u' 
 
-- name: sourcing bashrc
-  shell: 'source /home/vishnunimmalapudi/.bashrc'
 
 - name: Creates zookeeper cluster directories
   file: 
