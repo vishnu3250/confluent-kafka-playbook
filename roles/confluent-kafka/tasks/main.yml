@@ -66,7 +66,7 @@
       alias service.log='sudo journalctl -f -n 500 -u' 
 
 - name: sourcing bashrc
-  shell: 'source ~/.bashrc'
+  shell: 'source /home/vishnunimmalapudi/.bashrc'
 
 - name: Creates zookeeper cluster directories
   file: 
@@ -83,7 +83,8 @@
     src: zookeeper_ansible.service
     dest: /etc/systemd/system/
     owner: root 
-    mode: 644
+    mode: 777
+  become: yes
   notify:
     - restart zookeeper service
 
@@ -93,7 +94,8 @@
     src: zookeeper.run.sh
     dest: /opt/app/service/zookeeper/
     owner: root
-    mode: 644
+    mode: 777
+  become: yes
   notify:
     - restart zookeeper service
 
@@ -103,7 +105,8 @@
     src: zookeeper.stop.sh
     dest: /opt/app/service/zookeeper/
     owner: root
-    mode: 644
+    mode: 777
+  become: yes
   notify:
     - restart zookeeper service
 
