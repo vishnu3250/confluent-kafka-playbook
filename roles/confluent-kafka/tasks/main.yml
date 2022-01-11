@@ -13,6 +13,7 @@
     - /home/vishnunimmalapudi/confluent.temp/confluent
     - /home/vishnunimmalapudi/confluent.temp/java
     - /home/vishnunimmalapudi/confluent.temp/service/zookeeper
+    - /home/vishnunimmalapudi/confluent.temp/service/kafka
     - /home/vishnunimmalapudi/confluent.temp/confluent/data/zoo-dataDir
     - /home/vishnunimmalapudi/confluent.temp/tmp/kafka-10-logs
 
@@ -40,7 +41,7 @@
     chdir: /home/vishnunimmalapudi/confluent.temp/java
 
 - name: copy paste zoo props
-  shell: 'sudo cp {{installation_dir_path}}/confluent/confluent-6.2.0/etc/kafka/zookeeper.properties {{installation_dir_path}}/service/zookeeper/zookeeper.properties'
+  shell: 'sudo cp /home/vishnunimmalapudi/confluent.temp/confluent/confluent-6.2.0/etc/kafka/zookeeper.properties /home/vishnunimmalapudi/confluent.temp/service/zookeeper/zookeeper.properties'
 
 
 
@@ -49,6 +50,16 @@
   template:
     src: zookeeper.properties.j2
     dest: /home/vishnunimmalapudi/confluent.temp/service/zookeeper/zookeeper.properties
+
+
+- name: copy paste server props into service folder
+  shell: 'sudo cp /home/vishnunimmalapudi/confluent.temp/confluent/confluent-6.2.0/etc/kafka/server.properties /home/vishnunimmalapudi/confluent.temp/service/kafka/server-1.properties'
+
+- name: Configure server.properties
+  template:
+    src: server.properties.j2
+    dest: /home/vishnunimmalapudi/confluent.temp/service/kafka/server-1.properties
+
 
 - name: add bashrc lines
   blockinfile:
@@ -94,9 +105,7 @@
     owner: root
     mode: 777
   become: yes
-  notify:
-    - restart zookeeper service
-
+  
 
 - name: Install zookeeper.stop
   copy:
@@ -105,14 +114,45 @@
     owner: root
     mode: 777
   become: yes
+
+- name: Install kafka as service
+  copy:
+    src: kafka_ansible@.service
+    dest: /etc/systemd/system/
+    owner: root
+    mode: 644
   notify:
-    - restart zookeeper service
+    - restart kafka service
 
+- name: Install kafka.run
+  copy:
+    src: kafka.run.sh
+    dest: /home/vishnunimmalapudi/confluent.temp/service/kafka/
+    owner: root
+    mode: 777
+ 
 
-
+- name: Install kafka.stop
+  copy:
+    src: kafka.stop.sh
+    dest: /home/vishnunimmalapudi/confluent.temp/service/kafka/
+    owner: root
+    mode: 777
+ 
 - name: enable zookeeper service on startup
   systemd: 
     name: zookeeper_ansible.service
     daemon_reload: yes
     enabled: yes
     masked: no
+
+
+- name: enable kafka service on startup
+  systemd:
+    name: kafka_ansible@1.service
+    daemon_reload: yes
+    enabled: yes
+    masked: no
+
+
+

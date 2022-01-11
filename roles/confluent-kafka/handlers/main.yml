@@ -8,7 +8,7 @@
 - name: restart kafka service
   systemd: 
     state: restarted 
-    name: kafka_ansible.service
+    name: kafka_ansible@1.service
     daemon_reload: yes
  
 - name: restart schema-registry service

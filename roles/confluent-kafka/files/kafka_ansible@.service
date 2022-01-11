@@ -1,0 +1,17 @@
+[Unit]
+Description=Kafka Broker (label-app)
+After=multi-user.target zookeeper.service
+
+[Service]
+User=root
+WorkingDirectory=/home/vishnunimmalapudi/confluent.temp/confluent
+ExecStartPre=/bin/sleep 30
+ExecStart=/home/vishnunimmalapudi/confluent.temp/service/kafka/kafka.run.sh %i
+ExecStop=/home/vishnunimmalapudi/confluent.temp/service/kafka/kafka.stop.sh %i
+SuccessExitStatus=143
+TimeoutStopSec=20
+Restart=on-failure
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target
